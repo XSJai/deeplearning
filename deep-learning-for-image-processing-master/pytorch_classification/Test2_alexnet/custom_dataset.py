@@ -55,7 +55,7 @@ class CustomDataset(Dataset):
         image_path, image_label = list(self.data_path_list[index].items())[0]
         image = Image.open(image_path)
         image_tensor = self.transform(image)
-        return image_tensor, torch.tensor(image_label, dtype=torch.int64)
+        return image_tensor, torch.tensor(image_label, dtype=torch.int64)  # getitem函数得到的每组数据作为一个数组，B个这样的数组存到batch_list中，将batch_list传给collate_fn函数
     
     def collate_fn(self, batch_list):
         mini_batch_label_list = list()
@@ -68,13 +68,13 @@ class CustomDataset(Dataset):
         mini_batch_img = torch.stack(mini_batch_img_list, dim=0)
         mini_batch_label = torch.stack(mini_batch_label_list, dim=0)
         
-        return mini_batch_img, mini_batch_label
+        return mini_batch_img, mini_batch_label  # mini_batch_img.shape = [B, C, h, w](dtype=torch.float32), mini_batch_label.shape = [B](dtype=torch.int64)
 
 
 
 
 if __name__ == "__main__":
-    data_root_path = "/home/xsj/study/deep-learning-for-image-processing/data_set/flower_data/train"
+    data_root_path = "/home/xsj/github/deeplearning/deep-learning-for-image-processing-master/data_set/flower_data/train/dandelion"
     custom_dataset = CustomDataset(data_root_path)
     data_number = len(custom_dataset)
     data_i = custom_dataset[0]

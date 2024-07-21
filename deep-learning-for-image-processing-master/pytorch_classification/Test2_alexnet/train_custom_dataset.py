@@ -94,7 +94,7 @@ def main():
     net.to(device)
     loss_function = nn.CrossEntropyLoss()
     # pata = list(net.parameters())
-    optimizer = optim.Adam(net.parameters(), lr=0.0002)
+    optimizer = optim.Adam(net.parameters(), lr=0.0001)
 
     epochs = 10
     save_path = './AlexNet.pth'
