@@ -79,6 +79,11 @@ def main():
     # pata = list(net.parameters())
     optimizer = optim.Adam(net.parameters(), lr=0.0002)
 
+    # # 冻结features中的训练参数
+    # for p in net.features.parameters():
+    #     p.requires_grad = False
+    # optimizer = optim.Adam(filter(lambda p: p.requires_grad, net.parameters()), lr=0.0002)
+
     epochs = 10
     save_path = './AlexNet.pth'
     best_acc = 0.0
@@ -99,9 +104,28 @@ def main():
             # print statistics
             running_loss += loss.item()
 
-            train_bar.desc = "train epoch[{}/{}] loss:{:.3f}".format(epoch + 1,
-                                                                     epochs,
-                                                                     loss)
+            # 打印训练过程中的平均梯度
+            total_params = 0
+            total_grad = 0
+
+            # for name, param in net.named_parameters():
+            #     if param.requires_grad:
+            #         total_params += param.numel()
+            #         total_grad += param.grad.abs().sum().item()
+
+            for p in net.parameters():
+                if p.requires_grad:
+                    total_params += p.numel()
+                    total_grad += p.grad.abs().sum().item()
+
+            
+            average_grad = total_grad / total_params
+
+            train_bar.desc = "train epoch[{}/{}] loss:{:.3f} average_grad={}".format(epoch + 1,
+                                                                                            epochs,
+                                                                                            loss,
+                                                                                            average_grad)
+
 
         # validate
         net.eval()

@@ -1,4 +1,4 @@
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Sampler
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from PIL import Image
@@ -8,6 +8,15 @@ import random
 import torch
 import numpy as np
 
+class CustomSampler(Sampler):
+    def __init__(self, data_size, step=1):
+        self.data_size = data_size
+        self.step = step
+
+    def __iter__(self):
+        indices_list = list(range(self.data_size))
+        tp = (indices_list[i] for i in range(0, self.data_size, self.step))
+        return tp
 
 class CustomDataset(Dataset):
     def __init__(self, data_root_dir):
@@ -74,15 +83,18 @@ class CustomDataset(Dataset):
 
 
 if __name__ == "__main__":
-    data_root_path = "/home/xsj/github/deeplearning/deep-learning-for-image-processing-master/data_set/flower_data/train/dandelion"
+    data_root_path = "/home/xsj/dataset/flower_data/flower_photos"
     custom_dataset = CustomDataset(data_root_path)
     data_number = len(custom_dataset)
+    sampler = CustomSampler(data_number, step=2)
     data_i = custom_dataset[0]
 
+
     train_loader = DataLoader(batch_size=4,
-                              shuffle=True,
+                            #   shuffle=True,
                               dataset=custom_dataset,
                               collate_fn=custom_dataset.collate_fn,
+                              sampler=sampler
                               )
     for data in train_loader:
         label, img = data

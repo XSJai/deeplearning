@@ -1,6 +1,31 @@
 import torch.nn as nn
 import torch
 
+# 自定义类Features代替nn.Sequential()
+class Features(nn.Module):
+    def __init__(self):
+        super(Features, self).__init__()
+        self.f_conv1 = nn.Conv2d(3, 48, kernel_size=11, stride=4, padding=2)
+        self.f_bn1 = nn.BatchNorm2d(48)
+        self.f_relu = nn.ReLU(inplace=True)
+        self.f_pooling = nn.MaxPool2d(kernel_size=3, stride=2)
+        self.f_conv2 = nn.Conv2d(48, 128, kernel_size=5, padding=2)
+        self.f_bn2 = nn.BatchNorm2d(128)
+        self.f_conv3 = nn.Conv2d(128, 192, kernel_size=3, padding=1)
+        self.f_bn3 = nn.BatchNorm2d(192)
+        self.f_conv4 = nn.Conv2d(192, 192, kernel_size=3, padding=1)
+        self.f_bn4 = nn.BatchNorm2d(192)
+        self.f_conv5 = nn.Conv2d(192, 128, kernel_size=3, padding=1)
+        self.f_bn5 = nn.BatchNorm2d(128)
+    
+    def forward(self, x):
+        x = self.f_pooling(self.f_relu(self.f_bn1(self.f_conv1(x))))
+        x = self.f_pooling(self.f_relu(self.f_bn2(self.f_conv2(x))))
+        x = self.f_relu(self.f_bn3(self.f_conv3(x)))
+        x = self.f_relu(self.f_bn4(self.f_conv4(x)))
+        x = self.f_pooling(self.f_relu(self.f_bn5(self.f_conv5(x))))
+
+        return x
 
 class AlexNet(nn.Module):
     def __init__(self, num_classes=1000, init_weights=False):
@@ -20,6 +45,7 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),                  # output[128, 6, 6]
         )
+        # self.features = Features()
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.5),
             nn.Linear(128 * 6 * 6, 2048),
